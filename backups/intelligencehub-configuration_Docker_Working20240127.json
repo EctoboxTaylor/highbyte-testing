@@ -1,0 +1,2389 @@
+{
+  "productInfo" : {
+    "company" : "HighByte",
+    "product" : "IntelligenceHub",
+    "version" : "3.2.0",
+    "build" : "2023.9.6.1007",
+    "stage" : "Released"
+  },
+  "project" : {
+    "version" : 5,
+    "connections" : [ {
+      "name" : "EC_MSSQL_DB",
+      "uri" : "jdbc.sqlserver://mssql:1433",
+      "tags" : [ ],
+      "writes" : {
+        "flattenModeledValues" : false
+      },
+      "storeForward" : {
+        "enabled" : false,
+        "maxEntries" : 100,
+        "waitOnFailureInterval" : {
+          "duration" : 1,
+          "units" : "Seconds"
+        }
+      },
+      "settings" : {
+        "database" : "ectobox",
+        "username" : "sa"
+      }
+    }, {
+      "name" : "EC_OPCUA_CLECSNSRV50",
+      "uri" : "opc.tcp://ignition:62541",
+      "tags" : [ ],
+      "writes" : {
+        "flattenModeledValues" : false
+      },
+      "subscriptions" : {
+        "subscriptionRate" : {
+          "duration" : 1,
+          "units" : "Seconds"
+        }
+      },
+      "storeForward" : {
+        "enabled" : false,
+        "maxEntries" : 100,
+        "waitOnFailureInterval" : {
+          "duration" : 1,
+          "units" : "Seconds"
+        }
+      },
+      "settings" : {
+        "security" : "None",
+        "authentication" : {
+          "type" : "Anonymous",
+          "username" : "opcuauser"
+        },
+        "connectTimeoutSeconds" : 10,
+        "requestTimeoutMS" : 5000,
+        "maxItemsPerRead" : 512,
+        "maxItemsPerWrite" : 256,
+        "sessionName" : "Highbyte",
+        "certificateKeyPair" : "app-certificate-private-key"
+      }
+    }, {
+      "name" : "MSSQL_DB",
+      "uri" : "jdbc.sqlserver://SQLCLECSNOPS:1433",
+      "tags" : [ ],
+      "writes" : {
+        "flattenModeledValues" : false
+      },
+      "storeForward" : {
+        "enabled" : false,
+        "maxEntries" : 100,
+        "waitOnFailureInterval" : {
+          "duration" : 1,
+          "units" : "Seconds"
+        }
+      },
+      "settings" : {
+        "database" : "Ectobox",
+        "username" : "Ectobox"
+      }
+    }, {
+      "name" : "OPCUA_CLECSNSRV50",
+      "uri" : "opc.tcp://10.100.0.143:49310",
+      "description" : "OPC Tags",
+      "tags" : [ ],
+      "writes" : {
+        "flattenModeledValues" : false
+      },
+      "subscriptions" : {
+        "subscriptionRate" : {
+          "duration" : 1,
+          "units" : "Seconds"
+        }
+      },
+      "storeForward" : {
+        "enabled" : false,
+        "maxEntries" : 100,
+        "waitOnFailureInterval" : {
+          "duration" : 1,
+          "units" : "Seconds"
+        }
+      },
+      "settings" : {
+        "security" : "None",
+        "authentication" : {
+          "type" : "Anonymous"
+        },
+        "connectTimeoutSeconds" : 5,
+        "requestTimeoutMS" : 5000,
+        "maxItemsPerRead" : 512,
+        "maxItemsPerWrite" : 256,
+        "sessionName" : ""
+      }
+    } ],
+    "inputs" : [ {
+      "name" : "GetMaxBatchAndBagByStation_V1",
+      "connection" : "EC_MSSQL_DB",
+      "type" : "jdbc.sqlserver",
+      "qualifier" : {
+        "query" : "DECLARE @StationNum int,\n@rowID int ,\n@maxBatchID int,\n@maxBagNum int ;\n\nSET @StationNum = {{this.station}};\nSET @maxBatchID = (SELECT MAX(BatchID) FROM dbo.OPC_Station_Data WHERE StationNum=@StationNum);\nSET @maxBagNum = (SELECT MAX(BagNum) FROM dbo.OPC_Station_Data WHERE StationNum=@StationNum AND BatchID=@maxBatchID);\nSET @rowID = (SELECT ID FROM dbo.OPC_Station_Data WHERE StationNum=@StationNum AND BatchID=@maxBatchID AND BagNum=@maxBagNum);\n\nSELECT *\nFROM dbo.OPC_Station_Data\nWHERE ID=@rowID;"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      },
+      "template" : {
+        "name" : "station",
+        "type" : "Static",
+        "params" : {
+          "station" : "1-4"
+        }
+      }
+    }, {
+      "name" : "GetMaxBatchAndBagByStation_V2",
+      "connection" : "EC_MSSQL_DB",
+      "type" : "jdbc.sqlserver",
+      "qualifier" : {
+        "query" : "DECLARE @StationNum int,\n@rowID int ,\n@maxBatchID int,\n@maxBagNum int ;\n\nSET @StationNum = {{this.station}};\nSET @maxBatchID = (SELECT MAX(BatchID) FROM dbo.OPC_Station_Data2 WHERE StationNum=@StationNum);\nSET @maxBagNum = (SELECT MAX(BagNum) FROM dbo.OPC_Station_Data2 WHERE StationNum=@StationNum AND BatchID=@maxBatchID);\nSET @rowID = (SELECT ID FROM dbo.OPC_Station_Data2 WHERE StationNum=@StationNum AND BatchID=@maxBatchID AND BagNum=@maxBagNum);\n\nSELECT *\nFROM dbo.OPC_Station_Data2\nWHERE ID=@rowID;"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      },
+      "template" : {
+        "name" : "station",
+        "type" : "Static",
+        "params" : {
+          "station" : "1-4"
+        }
+      }
+    }, {
+      "name" : "ReadData",
+      "connection" : "EC_MSSQL_DB",
+      "type" : "jdbc.sqlserver",
+      "qualifier" : {
+        "query" : "SELECT*FROM OPC_Station_Data"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_BATCH_ID",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_BATCH_ID",
+        "type" : "Tag",
+        "dataType" : "Int32",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_BAT_WELD_LOWER_TMP1",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_BAT_WELD_LOWER_TMP1",
+        "type" : "Tag",
+        "dataType" : "Real32",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_BAT_WELD_LOWER_TMP2",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_BAT_WELD_LOWER_TMP2",
+        "type" : "Tag",
+        "dataType" : "Real32",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_BAT_WELD_LOWER_TMP3",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_BAT_WELD_LOWER_TMP3",
+        "type" : "Tag",
+        "dataType" : "Real32",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_BAT_WELD_LOWER_TMP4",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_BAT_WELD_LOWER_TMP4",
+        "type" : "Tag",
+        "dataType" : "Real32",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_BAT_WELD_UP_TMP1",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_BAT_WELD_UP_TMP1",
+        "type" : "Tag",
+        "dataType" : "Real32",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_BAT_WELD_UP_TMP2",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_BAT_WELD_UP_TMP2",
+        "type" : "Tag",
+        "dataType" : "Real32",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_BAT_WELD_UP_TMP3",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_BAT_WELD_UP_TMP3",
+        "type" : "Tag",
+        "dataType" : "Real32",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_BAT_WELD_UP_TMP4",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_BAT_WELD_UP_TMP4",
+        "type" : "Tag",
+        "dataType" : "Real32",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_FILLR_POS1_FILL",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_FILLR_POS1_FILL",
+        "type" : "Tag",
+        "dataType" : "Real32",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_FILLR_POS1_PINCH_RETRACT",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_FILLR_POS1_PINCH_RETRACT",
+        "type" : "Tag",
+        "dataType" : "Boolean",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_FILLR_POS1_WELD",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_FILLR_POS1_WELD",
+        "type" : "Tag",
+        "dataType" : "Boolean",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_FILLR_POS2_FILL",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_FILLR_POS2_FILL",
+        "type" : "Tag",
+        "dataType" : "Real32",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_FILLR_POS2_PINCH_RETRACT",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_FILLR_POS2_PINCH_RETRACT",
+        "type" : "Tag",
+        "dataType" : "Boolean",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_FILLR_POS2_WELD",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_FILLR_POS2_WELD",
+        "type" : "Tag",
+        "dataType" : "Boolean",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_FILLR_POS3_FILL",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_FILLR_POS3_FILL",
+        "type" : "Tag",
+        "dataType" : "Real32",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_FILLR_POS3_PINCH_RETRACT",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_FILLR_POS3_PINCH_RETRACT",
+        "type" : "Tag",
+        "dataType" : "Boolean",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_FILLR_POS3_WELD",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_FILLR_POS3_WELD",
+        "type" : "Tag",
+        "dataType" : "Boolean",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_FILLR_POS4_FILL",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_FILLR_POS4_FILL",
+        "type" : "Tag",
+        "dataType" : "Real32",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_FILLR_POS4_PINCH_RETRACT",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_FILLR_POS4_PINCH_RETRACT",
+        "type" : "Tag",
+        "dataType" : "Boolean",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_FILLR_POS4_WELD",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_FILLR_POS4_WELD",
+        "type" : "Tag",
+        "dataType" : "Boolean",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_FILLR_POS_PINCH_RETRACT",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_FILLR_POS{{this.station}}_PINCH_RETRACT",
+        "type" : "Tag",
+        "dataType" : "Boolean",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_FILLR_POS_WELD",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "[HB]/L21_FILLR_POS{{this.station}}_WELD",
+        "type" : "Tag",
+        "dataType" : "Boolean",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "Station",
+      "connection" : "EC_OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "type" : "Collection",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        },
+        "maxDepth" : 1,
+        "cacheInterval" : {
+          "duration" : 1,
+          "units" : "Hours"
+        },
+        "ignoreBadQuality" : false,
+        "browseVariableNodes" : false,
+        "collection" : [ {
+          "identifierType" : "String",
+          "name" : "WeldTrigger",
+          "namespaceIndex" : "2",
+          "identifier" : "[HB]/L21_FILLR_POS{{this.station}}_WELD"
+        }, {
+          "name" : "WeldLowerTemp",
+          "namespaceIndex" : 2,
+          "identifierType" : "String",
+          "identifier" : "[HB]/L21_BAT_WELD_LOWER_TMP{{this.station}}",
+          "type" : "Tag",
+          "dataType" : "Real32"
+        }, {
+          "name" : "WeldUpperTemp",
+          "namespaceIndex" : 2,
+          "identifierType" : "String",
+          "identifier" : "[HB]/L21_BAT_WELD_UP_TMP{{this.station}}",
+          "type" : "Tag",
+          "dataType" : "Real32"
+        }, {
+          "name" : "FillWeight",
+          "namespaceIndex" : 2,
+          "identifierType" : "String",
+          "identifier" : "[HB]/L21_FILLR_POS{{this.station}}_FILL",
+          "type" : "Tag",
+          "dataType" : "Real32"
+        }, {
+          "name" : "PinchRetracted",
+          "namespaceIndex" : 2,
+          "identifierType" : "String",
+          "identifier" : "[HB]/L21_FILLR_POS{{this.station}}_PINCH_RETRACT",
+          "type" : "Tag",
+          "dataType" : "Boolean"
+        } ]
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      },
+      "template" : {
+        "name" : "station",
+        "type" : "Static",
+        "params" : {
+          "station" : "1-4"
+        }
+      }
+    }, {
+      "name" : "GetMaxBatchAndBagByStation_V1",
+      "connection" : "MSSQL_DB",
+      "type" : "jdbc.sqlserver",
+      "qualifier" : {
+        "query" : "DECLARE @StationNum int,\n@rowID int ,\n@maxBatchID int,\n@maxBagNum int ;\n\nSET @StationNum = {{this.station}};\nSET @maxBatchID = (SELECT MAX(BatchID) FROM dbo.OPC_Station_Data WHERE StationNum=@StationNum);\nSET @maxBagNum = (SELECT MAX(BagNum) FROM dbo.OPC_Station_Data WHERE StationNum=@StationNum AND BatchID=@maxBatchID);\nSET @rowID = (SELECT ID FROM dbo.OPC_Station_Data WHERE StationNum=@StationNum AND BatchID=@maxBatchID AND BagNum=@maxBagNum);\n\nSELECT *\nFROM dbo.OPC_Station_Data\nWHERE ID=@rowID;"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      },
+      "template" : {
+        "name" : "station",
+        "type" : "Static",
+        "params" : {
+          "station" : "1"
+        }
+      }
+    }, {
+      "name" : "GetMaxBatchAndBagByStation_V2",
+      "connection" : "MSSQL_DB",
+      "type" : "jdbc.sqlserver",
+      "qualifier" : {
+        "query" : "DECLARE @StationNum int,\n@rowID int ,\n@maxBatchID int,\n@maxBagNum int ;\n\nSET @StationNum = {{this.station}};\nSET @maxBatchID = (SELECT MAX(BatchID) FROM dbo.OPC_Station_Data2 WHERE StationNum=@StationNum);\nSET @maxBagNum = (SELECT MAX(BagNum) FROM dbo.OPC_Station_Data2 WHERE StationNum=@StationNum AND BatchID=@maxBatchID);\nSET @rowID = (SELECT ID FROM dbo.OPC_Station_Data2 WHERE StationNum=@StationNum AND BatchID=@maxBatchID AND BagNum=@maxBagNum);\n\nSELECT *\nFROM dbo.OPC_Station_Data2\nWHERE ID=@rowID;"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      },
+      "template" : {
+        "name" : "station",
+        "type" : "Static",
+        "params" : {
+          "station" : "1"
+        }
+      }
+    }, {
+      "name" : "L21_1_HB_Batch_ID",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.Batch ID",
+        "type" : "Tag",
+        "dataType" : "Int32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_BATCH_ID",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_BATCH_ID",
+        "type" : "Tag",
+        "dataType" : "Int32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_BAT_OBJ_PASSED",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_BAT_OBJ_PASSED",
+        "type" : "Tag",
+        "dataType" : "Int32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_BAT_OBJ_PROCESSED",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_BAT_OBJ_PROCESSED",
+        "type" : "Tag",
+        "dataType" : "Int32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_BAT_OBJ_REJECTED",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_BAT_OBJ_REJECTED",
+        "type" : "Tag",
+        "dataType" : "Int32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_BAT_WELD_LOWER_TMP1",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_BAT_WELD_LOWER_TMP1",
+        "type" : "Tag",
+        "dataType" : "Real32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_BAT_WELD_LOWER_TMP2",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_BAT_WELD_LOWER_TMP2",
+        "type" : "Tag",
+        "dataType" : "Real32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_BAT_WELD_LOWER_TMP3",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_BAT_WELD_LOWER_TMP3",
+        "type" : "Tag",
+        "dataType" : "Real32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_BAT_WELD_LOWER_TMP4",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_BAT_WELD_LOWER_TMP4",
+        "type" : "Tag",
+        "dataType" : "Real32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_BAT_WELD_UP_TMP1",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_BAT_WELD_UP_TMP1",
+        "type" : "Tag",
+        "dataType" : "Real32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_BAT_WELD_UP_TMP2",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_BAT_WELD_UP_TMP2",
+        "type" : "Tag",
+        "dataType" : "Real32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_BAT_WELD_UP_TMP3",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_BAT_WELD_UP_TMP3",
+        "type" : "Tag",
+        "dataType" : "Real32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_BAT_WELD_UP_TMP4",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_BAT_WELD_UP_TMP4",
+        "type" : "Tag",
+        "dataType" : "Real32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS1_FILL",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS1_FILL",
+        "type" : "Tag",
+        "dataType" : "Real32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS1_PINCH_RETRACT",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS1_PINCH_RETRACT",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS1_WELD",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS1_WELD",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS1_WELD_JAW_CLOSE",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS1_WELD_JAW_CLOSE",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS1_WELD_JAW_OPEN",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS1_WELD_JAW_OPEN",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS2_FILL",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS2_FILL",
+        "type" : "Tag",
+        "dataType" : "Real32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS2_PINCH_RETRACT",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS2_PINCH_RETRACT",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS2_WELD",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS2_WELD",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS2_WELD_JAW_CLOSE",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS2_WELD_JAW_CLOSE",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS2_WELD_JAW_OPEN",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS2_WELD_JAW_OPEN",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS3_FILL",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS3_FILL",
+        "type" : "Tag",
+        "dataType" : "Real32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS3_PINCH_RETRACT",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS3_PINCH_RETRACT",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS3_PINCH_RETRACT_Copy",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS3_PINCH_RETRACT",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS3_WELD",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS3_WELD",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS3_WELD_JAW_CLOSE",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS3_WELD_JAW_CLOSE",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS3_WELD_JAW_OPEN",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS3_WELD_JAW_OPEN",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS4_FILL",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS4_FILL",
+        "type" : "Tag",
+        "dataType" : "Real32"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS4_PINCH_RETRACT",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS4_PINCH_RETRACT",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS4_WELD",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS4_WELD",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS4_WELD_JAW_CLOSE",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS4_WELD_JAW_CLOSE",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_POS4_WELD_JAW_OPEN",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_POS4_WELD_JAW_OPEN",
+        "type" : "Tag",
+        "dataType" : "Boolean"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "L21_1_HB_L21_FILLR_STATIONNUMBER",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "namespaceIndex" : 2,
+        "identifierType" : "String",
+        "identifier" : "L21_1.HB.L21_FILLR_STATIONNUMBER",
+        "type" : "Tag",
+        "dataType" : "Int16"
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      }
+    }, {
+      "name" : "Station",
+      "connection" : "OPCUA_CLECSNSRV50",
+      "type" : "opc.tcp",
+      "qualifier" : {
+        "type" : "Collection",
+        "samplingInterval" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        },
+        "maxDepth" : 1,
+        "cacheInterval" : {
+          "duration" : 1,
+          "units" : "Hours"
+        },
+        "ignoreBadQuality" : false,
+        "browseVariableNodes" : false,
+        "collection" : [ {
+          "identifierType" : "String",
+          "name" : "WeldTrigger",
+          "namespaceIndex" : "2",
+          "identifier" : "L21_1.HB.L21_FILLR_POS{{this.station}}_WELD"
+        }, {
+          "name" : "WeldLowerTemp",
+          "namespaceIndex" : 2,
+          "identifierType" : "String",
+          "identifier" : "L21_1.HB.L21_BAT_WELD_LOWER_TMP{{this.station}}",
+          "type" : "Tag",
+          "dataType" : "Real32"
+        }, {
+          "name" : "WeldUpperTemp",
+          "namespaceIndex" : 2,
+          "identifierType" : "String",
+          "identifier" : "L21_1.HB.L21_BAT_WELD_UP_TMP{{this.station}}",
+          "type" : "Tag",
+          "dataType" : "Real32"
+        }, {
+          "name" : "FillWeight",
+          "namespaceIndex" : 2,
+          "identifierType" : "String",
+          "identifier" : "L21_1.HB.L21_FILLR_POS{{this.station}}_FILL",
+          "type" : "Tag",
+          "dataType" : "Real32"
+        }, {
+          "name" : "PinchRetracted",
+          "namespaceIndex" : 2,
+          "identifierType" : "String",
+          "identifier" : "L21_1.HB.L21_FILLR_POS{{this.station}}_PINCH_RETRACT",
+          "type" : "Tag",
+          "dataType" : "Boolean"
+        }, {
+          "name" : "WeldJawClosed",
+          "namespaceIndex" : 2,
+          "identifierType" : "String",
+          "identifier" : "L21_1.HB.L21_FILLR_POS{{this.station}}_WELD_JAW_CLOSE",
+          "type" : "Tag",
+          "dataType" : "Boolean"
+        }, {
+          "name" : "WeldJawOpen",
+          "namespaceIndex" : 2,
+          "identifierType" : "String",
+          "identifier" : "L21_1.HB.L21_FILLR_POS{{this.station}}_WELD_JAW_OPEN",
+          "type" : "Tag",
+          "dataType" : "Boolean"
+        } ]
+      },
+      "cacheLifetime" : {
+        "enabled" : false
+      },
+      "template" : {
+        "name" : "station",
+        "type" : "Static",
+        "params" : {
+          "station" : "1"
+        }
+      }
+    } ],
+    "outputs" : [ {
+      "name" : "INSERT_Table_V1",
+      "connection" : "EC_MSSQL_DB",
+      "type" : "jdbc.sqlserver",
+      "qualifier" : {
+        "writeType" : "insert",
+        "breakupArrays" : false,
+        "createTable" : false,
+        "table" : "OPC_Station_Data",
+        "filterList" : [ ],
+        "whereColumn" : "",
+        "logAsJSON" : false
+      }
+    }, {
+      "name" : "INSERT_Table_V2",
+      "connection" : "EC_MSSQL_DB",
+      "type" : "jdbc.sqlserver",
+      "qualifier" : {
+        "writeType" : "insert",
+        "breakupArrays" : false,
+        "createTable" : false,
+        "table" : "OPC_Station_Data2",
+        "filterList" : [ ],
+        "whereColumn" : "",
+        "logAsJSON" : false
+      }
+    }, {
+      "name" : "UPDATE_Table_V1",
+      "connection" : "EC_MSSQL_DB",
+      "type" : "jdbc.sqlserver",
+      "qualifier" : {
+        "writeType" : "update",
+        "breakupArrays" : false,
+        "table" : "OPC_Station_Data",
+        "whereColumn" : "\n",
+        "logAsJSON" : false,
+        "createTable" : false
+      }
+    }, {
+      "name" : "UPDATE_Table_V2",
+      "connection" : "EC_MSSQL_DB",
+      "type" : "jdbc.sqlserver",
+      "qualifier" : {
+        "writeType" : "update",
+        "breakupArrays" : false,
+        "table" : "OPC_Station_Data2",
+        "whereColumn" : "\n",
+        "logAsJSON" : false,
+        "createTable" : false
+      }
+    }, {
+      "name" : "INSERT_Table_V1",
+      "connection" : "MSSQL_DB",
+      "type" : "jdbc.sqlserver",
+      "qualifier" : {
+        "writeType" : "insert",
+        "breakupArrays" : false,
+        "createTable" : false,
+        "table" : "OPC_Station_Data",
+        "filterList" : [ ]
+      }
+    }, {
+      "name" : "INSERT_Table_V2",
+      "connection" : "MSSQL_DB",
+      "type" : "jdbc.sqlserver",
+      "qualifier" : {
+        "writeType" : "insert",
+        "breakupArrays" : false,
+        "createTable" : false,
+        "table" : "OPC_Station_Data2",
+        "filterList" : [ ]
+      }
+    }, {
+      "name" : "UPDATE_Table_V1",
+      "connection" : "MSSQL_DB",
+      "type" : "jdbc.sqlserver",
+      "qualifier" : {
+        "writeType" : "update",
+        "breakupArrays" : false,
+        "table" : "OPC_Station_Data",
+        "whereColumn" : "\n"
+      }
+    }, {
+      "name" : "UPDATE_Table_V2",
+      "connection" : "MSSQL_DB",
+      "type" : "jdbc.sqlserver",
+      "qualifier" : {
+        "writeType" : "update",
+        "breakupArrays" : false,
+        "table" : "OPC_Station_Data2",
+        "whereColumn" : "\n"
+      }
+    }, {
+      "name" : "testDataWrite",
+      "connection" : "MSSQL_DB",
+      "type" : "jdbc.sqlserver",
+      "qualifier" : {
+        "writeType" : "insert",
+        "breakupArrays" : false,
+        "table" : "writetesting",
+        "createTable" : true
+      }
+    } ],
+    "modeling" : {
+      "models" : [ {
+        "name" : "station",
+        "tags" : [ ],
+        "attributes" : [ {
+          "name" : "WeldTrigger",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "WeldUpperTemp",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "WeldLowerTemp",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "FillWeight",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "PinchRetract",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "BatchID",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "StationNum",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        } ]
+      }, {
+        "name" : "station_v2",
+        "tags" : [ ],
+        "attributes" : [ {
+          "name" : "WeldTrigger",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "WeldUpperTemp",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "WeldLowerTemp",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "FillWeight",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "PinchRetract",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "BatchID",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "StationNum",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "DB_BatchID",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "BagNum",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "FillDateTime",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        } ]
+      }, {
+        "name" : "station_v3",
+        "tags" : [ ],
+        "attributes" : [ {
+          "name" : "WeldTrigger",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "FillWeight",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "PinchRetract",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "BatchID",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "StationNum",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "DB_BatchID",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "DBRecordID",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "BagNum",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "NextBagNum",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "FillDateTime",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "WeldDateTimeStart",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "WeldUpperTempStart",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "WeldUpperTempEnd",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "WeldLowerTempStart",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "WeldLowerTempEnd",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        }, {
+          "name" : "WeldDateTimeEnd",
+          "type" : "Any",
+          "array" : false,
+          "required" : false
+        } ]
+      } ],
+      "instances" : [ {
+        "name" : "stations",
+        "tags" : [ ],
+        "model" : "station",
+        "rootValueAs" : "Object",
+        "attributes" : [ {
+          "name" : "WeldTrigger",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.WeldTrigger"
+        }, {
+          "name" : "WeldUpperTemp",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.WeldUpperTemp"
+        }, {
+          "name" : "WeldLowerTemp",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.WeldLowerTemp"
+        }, {
+          "name" : "FillWeight",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.FillWeight"
+        }, {
+          "name" : "PinchRetract",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.PinchRetracted"
+        }, {
+          "name" : "BatchID",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.L21_BATCH_ID}}"
+        }, {
+          "name" : "StationNum",
+          "expression" : "{{this.station}}"
+        } ],
+        "template" : {
+          "name" : "station",
+          "type" : "Static",
+          "params" : {
+            "station" : "1-4"
+          }
+        }
+      }, {
+        "name" : "stations_V2",
+        "tags" : [ ],
+        "model" : "station_v2",
+        "rootValueAs" : "Object",
+        "attributes" : [ {
+          "name" : "WeldTrigger",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.WeldTrigger"
+        }, {
+          "name" : "WeldUpperTemp",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.WeldUpperTemp"
+        }, {
+          "name" : "WeldLowerTemp",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.WeldLowerTemp"
+        }, {
+          "name" : "FillWeight",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.FillWeight"
+        }, {
+          "name" : "PinchRetract",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.PinchRetracted"
+        }, {
+          "name" : "BatchID",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.L21_BATCH_ID}}"
+        }, {
+          "name" : "StationNum",
+          "expression" : "{{this.station}}"
+        }, {
+          "name" : "DB_BatchID",
+          "expression" : "{{Connection.EC_MSSQL_DB.GetMaxBatchAndBagByStation_V2(station={{this.station}})}}[0].BatchID"
+        }, {
+          "name" : "BagNum",
+          "expression" : "{{Connection.EC_MSSQL_DB.GetMaxBatchAndBagByStation_V2(station={{this.station}})}}[0].BagNum"
+        }, {
+          "name" : "FillDateTime",
+          "expression" : "const convertTimeZone = (date, timeZone) => {\r\n    return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US',{timeZone}))\r\n    }\r\n\r\nvar payload={};\r\nvar date= new Date();\r\nvar localTime = convertTimeZone(date,'America/New_York');\r\n\r\nlocalTime"
+        } ],
+        "template" : {
+          "name" : "",
+          "type" : "Static",
+          "params" : {
+            "station" : "1-4"
+          }
+        }
+      }, {
+        "name" : "stations_V3",
+        "tags" : [ ],
+        "model" : "station_v3",
+        "rootValueAs" : "Object",
+        "attributes" : [ {
+          "name" : "WeldTrigger",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.WeldTrigger"
+        }, {
+          "name" : "FillWeight",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.FillWeight"
+        }, {
+          "name" : "PinchRetract",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.PinchRetracted"
+        }, {
+          "name" : "BatchID",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.L21_BATCH_ID}}"
+        }, {
+          "name" : "StationNum",
+          "expression" : "{{this.station}}"
+        }, {
+          "name" : "DB_BatchID",
+          "expression" : "{{Connection.EC_MSSQL_DB.GetMaxBatchAndBagByStation_V2(station={{this.station}})}}[0].BatchID"
+        }, {
+          "name" : "DBRecordID",
+          "expression" : "{{Connection.EC_MSSQL_DB.GetMaxBatchAndBagByStation_V2(station={{this.station}})}}[0].ID"
+        }, {
+          "name" : "BagNum",
+          "expression" : "{{Connection.EC_MSSQL_DB.GetMaxBatchAndBagByStation_V2(station={{this.station}})}}[0].BagNum"
+        }, {
+          "name" : "NextBagNum",
+          "expression" : "if({{Connection.EC_OPCUA_CLECSNSRV50.L21_BATCH_ID}} === {{Connection.EC_MSSQL_DB.GetMaxBatchAndBagByStation_V2(station={{this.station}})}}[0].BatchID){\r\n{{Connection.EC_MSSQL_DB.GetMaxBatchAndBagByStation_V2(station={{this.station}})}}[0].BagNum +1;\r\n}\r\nelse {1;}"
+        }, {
+          "name" : "FillDateTime",
+          "expression" : "const convertTimeZone = (date, timeZone) => {\r\n    return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US',{timeZone}))\r\n    }\r\n\r\nvar payload={};\r\nvar date= new Date();\r\nvar localTime = convertTimeZone(date,'America/New_York');\r\n\r\nlocalTime"
+        }, {
+          "name" : "WeldDateTimeStart",
+          "expression" : "const convertTimeZone = (date, timeZone) => {\r\n    return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US',{timeZone}))\r\n    }\r\n\r\nvar payload={};\r\nvar date= new Date();\r\nvar localTime = convertTimeZone(date,'America/New_York');\r\n\r\nlocalTime"
+        }, {
+          "name" : "WeldUpperTempStart",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.WeldUpperTemp"
+        }, {
+          "name" : "WeldUpperTempEnd",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.WeldUpperTemp"
+        }, {
+          "name" : "WeldLowerTempStart",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.WeldLowerTemp"
+        }, {
+          "name" : "WeldLowerTempEnd",
+          "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.Station(station={{this.station}})}}.WeldLowerTemp"
+        }, {
+          "name" : "WeldDateTimeEnd",
+          "expression" : "const convertTimeZone = (date, timeZone) => {\r\n    return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US',{timeZone}))\r\n    }\r\n\r\nvar payload={};\r\nvar date= new Date();\r\nvar localTime = convertTimeZone(date,'America/New_York');\r\n\r\nlocalTime"
+        } ],
+        "template" : {
+          "name" : "",
+          "type" : "Static",
+          "params" : {
+            "station" : "1-4"
+          }
+        }
+      } ]
+    },
+    "flows" : [ {
+      "name" : "Flow_INSERTBagData_V1",
+      "tags" : [ ],
+      "inReferences" : [ "{{Instance.stations}}" ],
+      "outReferences" : [ "{{Pipeline.InsertBagData_V1}}" ],
+      "enabled" : false,
+      "publishMode" : "All",
+      "trigger" : {
+        "type" : "Exception",
+        "interval" : {
+          "duration" : 60,
+          "units" : "Seconds"
+        },
+        "mode" : "OnTrue",
+        "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.L21_FILLR_POS{{this.station}}_PINCH_RETRACT}}",
+        "delay" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "template" : {
+        "name" : "stations",
+        "type" : "Static",
+        "params" : {
+          "station" : "1"
+        }
+      }
+    }, {
+      "name" : "Flow_INSERTBagData_V2",
+      "tags" : [ ],
+      "inReferences" : [ "{{Instance.stations(station={{this.station}})}}" ],
+      "outReferences" : [ "{{Pipeline.InsertBagData_V2}}" ],
+      "enabled" : false,
+      "publishMode" : "All",
+      "trigger" : {
+        "type" : "Exception",
+        "interval" : {
+          "duration" : 60,
+          "units" : "Seconds"
+        },
+        "mode" : "OnTrue",
+        "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.L21_FILLR_POS_PINCH_RETRACT(station={{this.station}})}}",
+        "delay" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "template" : {
+        "name" : "stations",
+        "type" : "Static",
+        "params" : {
+          "station" : "1-4"
+        }
+      }
+    }, {
+      "name" : "Flow_INSERTBagData_V3",
+      "tags" : [ ],
+      "inReferences" : [ "{{Instance.stations_V3(station={{this.station}})}}" ],
+      "outReferences" : [ "{{Pipeline.InsertBagData_V3}}" ],
+      "enabled" : true,
+      "publishMode" : "All",
+      "trigger" : {
+        "type" : "Exception",
+        "interval" : {
+          "duration" : 60,
+          "units" : "Seconds"
+        },
+        "mode" : "OnTrue",
+        "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.L21_FILLR_POS_PINCH_RETRACT(station={{this.station}})}}",
+        "delay" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "template" : {
+        "name" : "stations",
+        "type" : "Static",
+        "params" : {
+          "station" : "1-4"
+        }
+      }
+    }, {
+      "name" : "Flow_UpdateTemps_V1",
+      "tags" : [ ],
+      "inReferences" : [ "{{Instance.stations}}" ],
+      "outReferences" : [ "{{Pipeline.UpdateWeldData_V1}}" ],
+      "enabled" : false,
+      "publishMode" : "All",
+      "trigger" : {
+        "type" : "Exception",
+        "interval" : {
+          "duration" : 1,
+          "units" : "Seconds"
+        },
+        "mode" : "OnTrue",
+        "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.L21_FILLR_POS{{this.station}}_WELD}}",
+        "delay" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "template" : {
+        "name" : "stations",
+        "type" : "Static",
+        "params" : {
+          "station" : "1"
+        }
+      }
+    }, {
+      "name" : "Flow_UpdateTemps_V2",
+      "tags" : [ ],
+      "inReferences" : [ "{{Instance.stations(station={{this.station}})}}" ],
+      "outReferences" : [ "{{Pipeline.UpdateWeldData_V2}}" ],
+      "enabled" : false,
+      "publishMode" : "All",
+      "trigger" : {
+        "type" : "Exception",
+        "interval" : {
+          "duration" : 1,
+          "units" : "Seconds"
+        },
+        "mode" : "OnChange",
+        "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.L21_FILLR_POS_WELD(station={{this.station}})}}",
+        "delay" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "template" : {
+        "name" : "stations",
+        "type" : "Static",
+        "params" : {
+          "station" : "1-4"
+        }
+      }
+    }, {
+      "name" : "Flow_UpdateTemps_V3",
+      "tags" : [ ],
+      "inReferences" : [ "{{Instance.stations_V3(station={{this.station}})}}" ],
+      "outReferences" : [ "{{Pipeline.UpdateWeldData_V3}}" ],
+      "enabled" : true,
+      "publishMode" : "All",
+      "trigger" : {
+        "type" : "Exception",
+        "interval" : {
+          "duration" : 1,
+          "units" : "Seconds"
+        },
+        "mode" : "OnChange",
+        "expression" : "{{Connection.EC_OPCUA_CLECSNSRV50.L21_FILLR_POS_WELD(station={{this.station}})}}",
+        "delay" : {
+          "duration" : 0,
+          "units" : "Seconds"
+        }
+      },
+      "template" : {
+        "name" : "stations",
+        "type" : "Static",
+        "params" : {
+          "station" : "1-4"
+        }
+      }
+    } ],
+    "conditions" : [ ],
+    "functions" : [ ],
+    "tags" : [ ],
+    "pipelines" : [ {
+      "name" : "InsertBagData_V1",
+      "uri" : "pipeline",
+      "tags" : [ ],
+      "settings" : {
+        "inputStages" : [ "Read_PLC_DB" ],
+        "trackActivity" : true,
+        "stages" : [ {
+          "name" : "Read_PLC_DB",
+          "outputs" : [ "FilterData" ],
+          "config" : {
+            "type" : ".ReadSourcesConfig",
+            "references" : [ "{{Instance.stations}}" ],
+            "eventDestination" : {
+              "choice" : "metadata",
+              "key" : "PLCData"
+            },
+            "outputType" : "individual",
+            "keyReferences" : [ {
+              "key" : "PLCData",
+              "reference" : "{{Instance.stations(station={{event.value.station}})}}"
+            }, {
+              "key" : "DBData",
+              "reference" : "{{Connection.EC_MSSQL_DB.GetMaxBatchAndBagByStation_V2(station={{event.value.station}})}}"
+            } ],
+            "inputValueLocation" : "child",
+            "inputValueKey" : "EventIn"
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 125
+            }
+          }
+        }, {
+          "name" : "Insert_Targets",
+          "outputs" : [ "Transform" ],
+          "config" : {
+            "type" : ".WriteConfig",
+            "references" : [ "{{Connection.EC_MSSQL_DB.INSERT_Table_V1}}" ]
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 525
+            }
+          }
+        }, {
+          "name" : "FilterData",
+          "outputs" : [ "Insert_Targets" ],
+          "config" : {
+            "type" : ".TransformConfig",
+            "transformExpression" : "const convertTimeZone = (date, timeZone) => {\r\n    return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US',{timeZone}))\r\n    }\r\n\r\nvar payload={};\r\nvar date= new Date();\r\nvar localTime = convertTimeZone(date,'America/New_York');\r\n//var dbRowIndex = event.value.PLCData.StationNum-1;\r\n\r\n\r\n// If the batchIDs dont match set new batchID and reset BagNum\r\nif(event.value.PLCData.BatchID !== event.value.DBData[0].BatchID){\r\n    payload[\"FillWeight\"]=event.value.PLCData.FillWeight;\r\n    payload[\"StationNum\"]=event.value.PLCData.StationNum;\r\n    payload[\"BatchID\"]=event.value.PLCData.BatchID;\r\n    payload[\"BagNum\"]=1;\r\n    payload[\"FillDateTime\"]=localTime;\r\n}\r\nif(event.value.PLCData.BatchID === event.value.DBData[0].BatchID) {\r\n    payload[\"FillWeight\"]=event.value.PLCData.FillWeight;\r\n    payload[\"StationNum\"]=event.value.PLCData.StationNum;\r\n    payload[\"BatchID\"]=event.value.PLCData.BatchID;\r\n    payload[\"BagNum\"]=event.value.DBData[0].BagNum +1;\r\n    payload[\"DBBagNum\"]=event.value.DBData[0].BagNum;\r\n    payload[\"FillDateTime\"]=localTime;\r\n\r\n}\r\n\r\nstage.setValue(payload);"
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 325
+            }
+          }
+        }, {
+          "name" : "Transform",
+          "outputs" : [ ],
+          "config" : {
+            "type" : ".TransformConfig",
+            "transformExpression" : "stage.setValue(event.value);"
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 700
+            }
+          }
+        } ]
+      }
+    }, {
+      "name" : "InsertBagData_V2",
+      "uri" : "pipeline",
+      "tags" : [ ],
+      "settings" : {
+        "inputStages" : [ "ReadInputParam" ],
+        "trackActivity" : true,
+        "stages" : [ {
+          "name" : "Read_PLC_DB",
+          "outputs" : [ "FilterData" ],
+          "config" : {
+            "type" : ".ReadSourcesConfig",
+            "references" : [ "{{Instance.stations(station={{this.station}})}}" ],
+            "eventDestination" : {
+              "choice" : "metadata",
+              "key" : "PLCData"
+            },
+            "outputType" : "individual",
+            "inputValueLocation" : "child",
+            "inputValueKey" : "EventIn",
+            "keyReferences" : [ {
+              "key" : "PLCData",
+              "reference" : "{{Instance.stations(station={{event.value.StationNum}})}}"
+            }, {
+              "key" : "DBData",
+              "reference" : "{{Connection.EC_MSSQL_DB.GetMaxBatchAndBagByStation_V2(station={{event.value.StationNum}})}}"
+            } ]
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 350
+            }
+          }
+        }, {
+          "name" : "Insert_Targets",
+          "outputs" : [ "Transform" ],
+          "config" : {
+            "type" : ".WriteConfig",
+            "references" : [ "{{Connection.EC_MSSQL_DB.INSERT_Table_V2}}" ]
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 725
+            }
+          }
+        }, {
+          "name" : "FilterData",
+          "outputs" : [ "Insert_Targets" ],
+          "config" : {
+            "type" : ".TransformConfig",
+            "transformExpression" : "const convertTimeZone = (date, timeZone) => {\r\n    return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US',{timeZone}))\r\n    }\r\n\r\nvar payload={};\r\nvar date= new Date();\r\nvar localTime = convertTimeZone(date,'America/New_York');\r\n//var dbRowIndex = event.value.PLCData.StationNum-1;\r\n\r\n\r\n// If the batchIDs dont match set new batchID and reset BagNum\r\nif(event.value.PLCData.BatchID !== event.value.DBData[0].BatchID){\r\n    payload[\"StationNum\"]=event.value.PLCData.StationNum;\r\n    payload[\"BatchID\"]=event.value.PLCData.BatchID;\r\n    payload[\"BagNum\"]=1;\r\n    payload[\"FillDateTime\"]=localTime;\r\n    payload[\"FillWeight\"]=event.value.PLCData.FillWeight;\r\n    stage.setValue(payload);\r\n}\r\nif(event.value.PLCData.BatchID === event.value.DBData[0].BatchID) {\r\n    payload[\"FillWeight\"]=event.value.PLCData.FillWeight;\r\n    payload[\"StationNum\"]=event.value.PLCData.StationNum;\r\n    payload[\"BatchID\"]=event.value.PLCData.BatchID;\r\n    payload[\"BagNum\"]=event.value.DBData[0].BagNum +1;\r\n    payload[\"DBBagNum\"]=event.value.DBData[0].BagNum;\r\n    payload[\"FillDateTime\"]=localTime;\r\n    stage.setValue(payload);\r\n\r\n}\r\nelse{\r\n}"
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 550
+            }
+          }
+        }, {
+          "name" : "ReadInputParam",
+          "outputs" : [ "Read_PLC_DB" ],
+          "config" : {
+            "type" : ".TransformConfig",
+            "transformExpression" : "// Create a state key using asset id\r\nvar key = \"station\" + event.value.station;\r\nvar newStation = event.value.station;\r\n\r\n// Load previous state using the current mode if mode has never been saved\r\nvar previousStation = state.pipeline.get(key, event.value.station);\r\n\r\n// Save new stage\r\nstate.pipeline.set(key, newStation);\r\n\r\n// No change, stop\r\n//if (newStation === previousStation) {\r\n//    stage.stop();\r\n//    return;\r\n//}\r\n//\r\n// Not error, stop\r\n//if (newStation !== \"ERROR\") {\r\n//    stage.stop();\r\n//}"
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 150
+            }
+          }
+        }, {
+          "name" : "Transform",
+          "outputs" : [ ],
+          "config" : {
+            "type" : ".TransformConfig",
+            "transformExpression" : "stage.setValue(event.value);"
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 900
+            }
+          }
+        } ]
+      }
+    }, {
+      "name" : "InsertBagData_V3",
+      "uri" : "pipeline",
+      "tags" : [ ],
+      "settings" : {
+        "inputStages" : [ "FilterData" ],
+        "trackActivity" : true,
+        "stages" : [ {
+          "name" : "Insert_Targets",
+          "outputs" : [ ],
+          "config" : {
+            "type" : ".WriteConfig",
+            "references" : [ "{{Connection.EC_MSSQL_DB.INSERT_Table_V2}}" ]
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 450
+            }
+          }
+        }, {
+          "name" : "FilterData",
+          "outputs" : [ "Insert_Targets" ],
+          "config" : {
+            "type" : ".TransformConfig",
+            "transformExpression" : "var payload={};\r\n\r\npayload[\"FillWeight\"]=event.value.FillWeight;\r\npayload[\"StationNum\"]=event.value.StationNum;\r\npayload[\"BatchID\"]=event.value.BatchID;\r\npayload[\"BagNum\"]=event.value.NextBagNum;\r\npayload[\"FillDateTime\"]=event.value.FillDateTime;\r\nstage.setValue(payload);\r\n"
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 225
+            }
+          }
+        } ]
+      }
+    }, {
+      "name" : "UpdateWeldData_V1",
+      "uri" : "pipeline",
+      "tags" : [ ],
+      "settings" : {
+        "inputStages" : [ "Read_PLC_DB" ],
+        "trackActivity" : true,
+        "stages" : [ {
+          "name" : "Read_PLC_DB",
+          "outputs" : [ "Filter" ],
+          "config" : {
+            "type" : ".ReadSourcesConfig",
+            "references" : [ "{{Instance.stations}}" ],
+            "eventDestination" : {
+              "choice" : "metadata",
+              "key" : "PLCData"
+            },
+            "outputType" : "individual",
+            "inputValueLocation" : "child",
+            "inputValueKey" : "EventIn",
+            "keyReferences" : [ {
+              "key" : "PLCData",
+              "reference" : "{{Instance.stations(station={{event.value.station}})}}"
+            }, {
+              "key" : "DBData",
+              "reference" : "{{Connection.EC_MSSQL_DB.GetMaxBatchAndBagByStation_V1(station={{event.value.station}})}}"
+            } ]
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 200
+            }
+          }
+        }, {
+          "name" : "UPDATE_Row",
+          "outputs" : [ "Transform" ],
+          "config" : {
+            "type" : ".DynamicWriteConfig",
+            "connectionReference" : "{{Connection.EC_MSSQL_DB}}",
+            "qualifier" : {
+              "writeType" : "update",
+              "breakupArrays" : false,
+              "table" : "OPC_Station_Data",
+              "whereColumn" : "StationNum={{event.metadata.filtered.PLCData.StationNum}} AND BagNum={{event.metadata.filtered.DBData[0].BagNum}} AND BatchID={{event.metadata.filtered.PLCData.BatchID}}",
+              "logAsJSON" : false,
+              "createTable" : false
+            },
+            "qualifierExpression" : "",
+            "connectionType" : "jdbc.sqlserver"
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 750
+            }
+          }
+        }, {
+          "name" : "FilterData",
+          "outputs" : [ "UPDATE_Row" ],
+          "config" : {
+            "type" : ".TransformConfig",
+            "transformExpression" : "const convertTimeZone = (date, timeZone) => {\r\n    return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US',{timeZone}))\r\n    }\r\n\r\nvar payload={};\r\nvar date= new Date();\r\nvar localTime = convertTimeZone(date,'America/New_York');\r\n//var dbRowIndex = event.metadata.PLCData.StationNum-1;\r\n\r\n\r\nif(event.metadata.filtered.PLCData.BatchID === event.metadata.filtered.DBData[0].BatchID) {\r\n    //payload[\"StationNum\"]=event.metadata.PLCData.StationNum;\r\n    //payload[\"BatchID\"]=event.metadata.PLCData.BatchID;\r\n    //payload[\"BagNum\"]=event.metadata.DBData[dbRowIndex].BagNum;\r\n    payload[\"WeldUpperDateTime\"]=localTime;\r\n    payload[\"WeldUpperTemp\"]=event.metadata.filtered.PLCData.WeldUpperTemp;\r\n    payload[\"WeldLowerDateTime\"]=localTime;\r\n    payload[\"WeldLowerTemp\"]=event.metadata.filtered.PLCData.WeldLowerTemp;\r\n    stage.setValue(payload);\r\n}\r\n\r\nelse{\r\n    stage.stop;\r\n    }"
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 550
+            }
+          }
+        }, {
+          "name" : "Transform",
+          "outputs" : [ ],
+          "config" : {
+            "type" : ".TransformConfig",
+            "transformExpression" : "stage.setValue(event.value);"
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 925
+            }
+          }
+        }, {
+          "name" : "Filter",
+          "outputs" : [ "FilterData" ],
+          "config" : {
+            "type" : ".AttributeFilterConfig",
+            "filterOption" : "exclude",
+            "attributeList" : [ "PLCData", "DBData" ],
+            "retainAsMetadata" : true,
+            "metadataKey" : "filtered"
+          },
+          "display" : {
+            "position" : {
+              "x" : 325,
+              "y" : 425
+            }
+          }
+        } ]
+      }
+    }, {
+      "name" : "UpdateWeldData_V2",
+      "uri" : "pipeline",
+      "tags" : [ ],
+      "settings" : {
+        "inputStages" : [ "GetInputParameters" ],
+        "trackActivity" : true,
+        "stages" : [ {
+          "name" : "Read_PLC_DB",
+          "outputs" : [ "Filter" ],
+          "config" : {
+            "type" : ".ReadSourcesConfig",
+            "references" : [ "{{Instance.stations}}" ],
+            "eventDestination" : {
+              "choice" : "metadata",
+              "key" : "PLCData"
+            },
+            "outputType" : "individual",
+            "keyReferences" : [ {
+              "key" : "PLCData",
+              "reference" : "{{Instance.stations(station={{event.value.StationNum}})}}"
+            }, {
+              "key" : "DBData",
+              "reference" : "{{Connection.EC_MSSQL_DB.GetMaxBatchAndBagByStation_V2(station={{event.value.StationNum}})}}"
+            } ],
+            "inputValueLocation" : "child",
+            "inputValueKey" : "EventIn"
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 250
+            }
+          }
+        }, {
+          "name" : "Update_Weld_Start",
+          "outputs" : [ ],
+          "config" : {
+            "type" : ".DynamicWriteConfig",
+            "connectionReference" : "{{Connection.EC_MSSQL_DB}}",
+            "qualifier" : {
+              "writeType" : "update",
+              "breakupArrays" : false,
+              "table" : "OPC_Station_Data2",
+              "whereColumn" : "StationNum={{event.metadata.filtered.PLCData.StationNum}} AND BagNum={{event.metadata.filtered.DBData[0].BagNum}} AND BatchID={{event.metadata.filtered.PLCData.BatchID}}",
+              "logAsJSON" : false,
+              "createTable" : false
+            },
+            "qualifierExpression" : "",
+            "connectionType" : "jdbc.sqlserver"
+          },
+          "display" : {
+            "position" : {
+              "x" : -225,
+              "y" : 875
+            }
+          }
+        }, {
+          "name" : "FilterStartData",
+          "outputs" : [ "Transform" ],
+          "config" : {
+            "type" : ".TransformConfig",
+            "transformExpression" : "// IF _WELD == 0 (start of batch), continue ELSE bail out\r\nif(event.metadata.filtered.PLCData.WeldTrigger === true) { // Wrong value of _WELD TRIGGER for start update\r\nstage.stop();\r\n}\r\n\r\nif(event.metadata.filtered.PLCData.WeldTrigger === false) {\r\n    const convertTimeZone = (date, timeZone) => {\r\n        return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US',{timeZone}))\r\n        }\r\n\r\n    var payload={};\r\n    var date= new Date();\r\n    var localTime = convertTimeZone(date,'America/New_York');\r\n    //var dbRowIndex = event.value.PLCData.StationNum-1; //(0 array start)\r\n\r\n    if(event.metadata.filtered.PLCData.BatchID === event.metadata.filtered.DBData[0].BatchID) {\r\n        payload[\"WeldDateTimeStart\"]=localTime;\r\n        payload[\"WeldUpperTempStart\"]=event.metadata.filtered.PLCData.WeldUpperTemp;\r\n        payload[\"WeldLowerTempStart\"]=event.metadata.filtered.PLCData.WeldLowerTemp;\r\n        stage.setValue(payload);\r\n\r\n    }\r\n}\r\n\r\nelse{\r\nstage.stop();\r\n}"
+          },
+          "display" : {
+            "position" : {
+              "x" : -225,
+              "y" : 575
+            }
+          }
+        }, {
+          "name" : "FilterEndData",
+          "outputs" : [ "Transform_1" ],
+          "config" : {
+            "type" : ".TransformConfig",
+            "transformExpression" : "// IF _WELD == 1 (end of batch), continue ELSE bail out\r\nif(event.metadata.filtered.PLCData.WeldTrigger === false){ // Wrong value of _WELD TRIGGER for end update\r\nstage.stop();\r\n}\r\n\r\nif(event.metadata.filtered.PLCData.WeldTrigger === true) {\r\n    const convertTimeZone = (date, timeZone) => {\r\n        return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US',{timeZone}))\r\n        }\r\n\r\n    var payload={};\r\n    var date= new Date();\r\n    var localTime = convertTimeZone(date,'America/New_York');\r\n    //var dbRowIndex = event.value.PLCData.StationNum-1;\r\n\r\n    if(event.metadata.filtered.PLCData.BatchID === event.metadata.filtered.DBData[0].BatchID) {\r\n        //payload[\"StationNum\"]=event.value.PLCData.StationNum;\r\n        //payload[\"BatchID\"]=event.value.PLCData.BatchID;\r\n        //payload[\"BagNum\"]=event.value.DBData[0].BagNum;\r\n        payload[\"WeldDateTimeEnd\"]=localTime;\r\n        payload[\"WeldUpperTempEnd\"]=event.metadata.filtered.PLCData.WeldUpperTemp;\r\n        payload[\"WeldLowerTempEnd\"]=event.metadata.filtered.PLCData.WeldLowerTemp;\r\n        stage.setValue(payload);\r\n    }\r\n}\r\n\r\nelse{\r\nstage.stop();\r\n}"
+          },
+          "display" : {
+            "position" : {
+              "x" : 225,
+              "y" : 575
+            }
+          }
+        }, {
+          "name" : "Update_Weld_End",
+          "outputs" : [ ],
+          "config" : {
+            "type" : ".DynamicWriteConfig",
+            "connectionReference" : "{{Connection.EC_MSSQL_DB}}",
+            "qualifier" : {
+              "writeType" : "update",
+              "breakupArrays" : false,
+              "whereColumn" : "StationNum={{event.metadata.filtered.PLCData.StationNum}} AND BagNum={{event.metadata.filtered.DBData[0].BagNum}} AND BatchID={{event.metadata.filtered.PLCData.BatchID}}",
+              "table" : "OPC_Station_Data2",
+              "logAsJSON" : false,
+              "createTable" : false
+            },
+            "connectionType" : "jdbc.sqlserver"
+          },
+          "display" : {
+            "position" : {
+              "x" : 225,
+              "y" : 875
+            }
+          }
+        }, {
+          "name" : "GetInputParameters",
+          "outputs" : [ "Read_PLC_DB" ],
+          "config" : {
+            "type" : ".TransformConfig",
+            "transformExpression" : "// Create a state key using asset id\r\nvar key = \"station\" + event.value.station;\r\nvar newStation = event.value.station;\r\n\r\n// Load previous state using the current mode if mode has never been saved\r\nvar previousStation = state.pipeline.get(key, event.value.station);\r\n\r\n// Save new stage\r\nstate.pipeline.set(key, newStation);\r\n\r\n// No change, stop\r\n//if (newStation === previousStation) {\r\n//    stage.stop();\r\n//    return;\r\n//}\r\n//\r\n// Not error, stop\r\n//if (newStation !== \"ERROR\") {\r\n//    stage.stop();\r\n//}"
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 125
+            }
+          }
+        }, {
+          "name" : "Transform",
+          "outputs" : [ "Update_Weld_Start" ],
+          "config" : {
+            "type" : ".TransformConfig",
+            "transformExpression" : "stage.setValue(event.value);"
+          },
+          "display" : {
+            "position" : {
+              "x" : -225,
+              "y" : 725
+            }
+          }
+        }, {
+          "name" : "Transform_1",
+          "outputs" : [ "Update_Weld_End" ],
+          "config" : {
+            "type" : ".TransformConfig",
+            "transformExpression" : "stage.setValue(event.value);"
+          },
+          "display" : {
+            "position" : {
+              "x" : 225,
+              "y" : 725
+            }
+          }
+        }, {
+          "name" : "Filter",
+          "outputs" : [ "FilterStartData", "FilterEndData" ],
+          "config" : {
+            "type" : ".AttributeFilterConfig",
+            "filterOption" : "exclude",
+            "attributeList" : [ "PLCData", "DBData" ],
+            "retainAsMetadata" : true,
+            "metadataKey" : "filtered"
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 400
+            }
+          }
+        } ]
+      }
+    }, {
+      "name" : "UpdateWeldData_V3",
+      "uri" : "pipeline",
+      "tags" : [ ],
+      "settings" : {
+        "inputStages" : [ "Filter" ],
+        "trackActivity" : true,
+        "stages" : [ {
+          "name" : "Update_Weld_Start",
+          "outputs" : [ ],
+          "config" : {
+            "type" : ".DynamicWriteConfig",
+            "connectionReference" : "{{Connection.EC_MSSQL_DB}}",
+            "qualifier" : {
+              "writeType" : "update",
+              "breakupArrays" : false,
+              "table" : "OPC_Station_Data2",
+              "whereColumn" : "ID = {{event.metadata.filtered.DBRecordID}}",
+              "logAsJSON" : false,
+              "createTable" : false
+            },
+            "qualifierExpression" : "",
+            "connectionType" : "jdbc.sqlserver"
+          },
+          "display" : {
+            "position" : {
+              "x" : -175,
+              "y" : 875
+            }
+          }
+        }, {
+          "name" : "FilterStartData",
+          "outputs" : [ "Update_Weld_Start" ],
+          "config" : {
+            "type" : ".TransformConfig",
+            "transformExpression" : "// IF _WELD == 0 (start of batch), continue ELSE bail out\r\nif(event.value.WeldTrigger === true) { // Wrong value of _WELD TRIGGER for start update\r\nstage.stop();\r\n}\r\n\r\nvar payload={};\r\npayload[\"WeldDateTimeStart\"]=event.value.WeldDateTimeStart;\r\npayload[\"WeldUpperTempStart\"]=event.value.WeldUpperTempStart;\r\npayload[\"WeldLowerTempStart\"]=event.value.WeldLowerTempStart;\r\nstage.setValue(payload);\r\n"
+          },
+          "display" : {
+            "position" : {
+              "x" : -175,
+              "y" : 575
+            }
+          }
+        }, {
+          "name" : "FilterEndData",
+          "outputs" : [ "Update_Weld_End" ],
+          "config" : {
+            "type" : ".TransformConfig",
+            "transformExpression" : "// IF _WELD == 1 (end of batch), continue ELSE bail out\r\nif(event.value.WeldTrigger === false){ // Wrong value of _WELD TRIGGER for end update\r\nstage.stop();\r\n}\r\n\r\nvar payload={};\r\npayload[\"WeldDateTimeEnd\"]=event.value.WeldDateTimeEnd;\r\npayload[\"WeldUpperTempEnd\"]=event.value.WeldUpperTempEnd;\r\npayload[\"WeldLowerTempEnd\"]=event.value.WeldLowerTempEnd;\r\nstage.setValue(payload);"
+          },
+          "display" : {
+            "position" : {
+              "x" : 200,
+              "y" : 575
+            }
+          }
+        }, {
+          "name" : "Update_Weld_End",
+          "outputs" : [ ],
+          "config" : {
+            "type" : ".DynamicWriteConfig",
+            "connectionReference" : "{{Connection.EC_MSSQL_DB}}",
+            "qualifier" : {
+              "writeType" : "update",
+              "breakupArrays" : false,
+              "whereColumn" : "ID = {{event.metadata.filtered.DBRecordID}}",
+              "table" : "OPC_Station_Data2",
+              "logAsJSON" : false,
+              "createTable" : false
+            },
+            "connectionType" : "jdbc.sqlserver"
+          },
+          "display" : {
+            "position" : {
+              "x" : 200,
+              "y" : 875
+            }
+          }
+        }, {
+          "name" : "Filter",
+          "outputs" : [ "FilterStartData", "FilterEndData" ],
+          "config" : {
+            "type" : ".AttributeFilterConfig",
+            "filterOption" : "exclude",
+            "attributeList" : [ "DBRecordID" ],
+            "retainAsMetadata" : true,
+            "metadataKey" : "filtered"
+          },
+          "display" : {
+            "position" : {
+              "x" : 0,
+              "y" : 175
+            }
+          }
+        } ]
+      }
+    } ]
+  },
+  "network" : {
+    "groups" : [ ],
+    "hubs" : [ ]
+  }
+}

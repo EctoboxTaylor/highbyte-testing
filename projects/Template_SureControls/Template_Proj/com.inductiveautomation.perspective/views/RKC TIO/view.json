@@ -1,0 +1,572 @@
+{
+  "custom": {},
+  "params": {
+    "udtElements": {
+      "CV": 50,
+      "CVCT": "value",
+      "CVCool": "value",
+      "CVHeat": "value",
+      "DeviationValue": 30,
+      "Event1": "value",
+      "Event2": "value",
+      "Event3": "value",
+      "Event4": "value",
+      "HasCT": true,
+      "HeaterBreak": "value",
+      "InManual": false,
+      "InRemote": false,
+      "IndicateAndControl": true,
+      "Manual": 0,
+      "ManualOut": 50,
+      "Name": "name",
+      "PV": 21.5,
+      "ProcessHigh": 600,
+      "ProcessLow": 350,
+      "Remote": 0,
+      "Running": false,
+      "SP": 22,
+      "SPMonitor": "value",
+      "Stopped": true
+    }
+  },
+  "propConfig": {
+    "params.udtElements": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 250,
+      "width": 150
+    },
+    "dropConfig": {
+      "udts": [
+        {
+          "action": "bind",
+          "param": "udtElements",
+          "type": "RKC TIO"
+        }
+      ]
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "MultiState_Manual"
+        },
+        "position": {
+          "height": 30,
+          "width": 130,
+          "x": 10,
+          "y": 210
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "view.params.udtElements.IndicateAndControl"
+              },
+              "type": "property"
+            }
+          },
+          "props.controlValue": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "view.params.udtElements.Manual"
+              },
+              "type": "property"
+            }
+          },
+          "props.indicatorValue": {
+            "binding": {
+              "config": {
+                "path": "view.params.udtElements.InManual"
+              },
+              "transforms": [
+                {
+                  "fallback": null,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": 1
+                    },
+                    {
+                      "input": false,
+                      "output": 0
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "defaultSelectedStyle": {
+            "classes": "RKC/Selected"
+          },
+          "defaultUnselectedStyle": {
+            "classes": "RKC/Unselected"
+          },
+          "orientation": "row",
+          "states": [
+            {
+              "selectedStyle": {
+                "classes": ""
+              },
+              "text": "Auto",
+              "unselectedStyle": {
+                "classes": ""
+              },
+              "value": 0
+            },
+            {
+              "selectedStyle": {
+                "classes": ""
+              },
+              "text": "Manual",
+              "unselectedStyle": {
+                "classes": ""
+              },
+              "value": 1
+            }
+          ]
+        },
+        "type": "ia.input.multi-state-button"
+      },
+      {
+        "meta": {
+          "name": "NumericEntry_SP"
+        },
+        "position": {
+          "height": 30,
+          "width": 60,
+          "x": 10,
+          "y": 140
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{view.params.udtElements.IndicateAndControl}\u0026\u0026!{view.params.udtElements.InManual}"
+              },
+              "type": "expr"
+            }
+          },
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "view.params.udtElements.SP"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "RKC/Entry RKC/Text"
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Label_CV"
+        },
+        "position": {
+          "height": 30,
+          "width": 60,
+          "x": 10,
+          "y": 170
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "view.params.udtElements.IndicateAndControl"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.udtElements.CV"
+              },
+              "transforms": [
+                {
+                  "code": "\tstring \u003d str(value) + u\u0027 %\u0027\n\treturn string",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "RKC/Text"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "MovingAnalogIndicator"
+        },
+        "position": {
+          "height": 100,
+          "width": 70,
+          "x": 70,
+          "y": 40
+        },
+        "propConfig": {
+          "props.desiredHigh": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.udtElements.IndicateAndControl},({view.params.udtElements.SP}+{view.params.udtElements.DeviationValue}),550)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.desiredLow": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.udtElements.IndicateAndControl},({view.params.udtElements.SP}-{view.params.udtElements.DeviationValue}),400)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.highAlarm": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.udtElements.IndicateAndControl},{view.params.udtElements.ProcessHigh},600)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.lowAlarm": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.udtElements.IndicateAndControl},{view.params.udtElements.ProcessLow},300)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.maxValue": {
+            "binding": {
+              "config": {
+                "expression": "{this.props.highAlarm}+50"
+              },
+              "type": "expr"
+            }
+          },
+          "props.minValue": {
+            "binding": {
+              "config": {
+                "expression": "{this.props.lowAlarm}-50"
+              },
+              "type": "expr"
+            }
+          },
+          "props.processValue": {
+            "binding": {
+              "config": {
+                "path": "view.params.udtElements.PV"
+              },
+              "type": "property"
+            }
+          },
+          "props.setpointValue": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.udtElements.IndicateAndControl},{view.params.udtElements.SP},500)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "highHighAlarm": null,
+          "highInterlock": null,
+          "lowInterlock": null,
+          "lowLowAlarm": null
+        },
+        "type": "ia.display.moving-analog-indicator"
+      },
+      {
+        "meta": {
+          "name": "Label_Name"
+        },
+        "position": {
+          "height": 30,
+          "width": 130,
+          "x": 5,
+          "y": 5
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.udtElements.Name"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "RKC/Name"
+          },
+          "textStyle": {
+            "classes": "RKC/Name"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_PV"
+        },
+        "position": {
+          "height": 30,
+          "width": 60,
+          "x": 80,
+          "y": 140
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.udtElements.PV"
+              },
+              "transforms": [
+                {
+                  "code": "\tstring \u003d str(value) + u\u0027 °F\u0027\n\treturn string",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "Main/TagValue"
+          },
+          "textStyle": {
+            "classes": "RKC/Text"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "custom": {
+          "key": [
+            {
+              "aggregate": "Average",
+              "alias": "PV"
+            }
+          ]
+        },
+        "meta": {
+          "name": "Sparkline"
+        },
+        "position": {
+          "height": 100,
+          "width": 90,
+          "x": 10,
+          "y": 40
+        },
+        "propConfig": {
+          "custom.key[0].path": {
+            "binding": {
+              "config": {
+                "path": "view.params.udtElements.Name"
+              },
+              "transforms": [
+                {
+                  "expression": "\u0027[edge]\u0027+{value}+\u0027/PV\u0027",
+                  "type": "expression"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.desired.high": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.udtElements.IndicateAndControl},{view.params.udtElements.ProcessHigh},600)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.desired.low": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.udtElements.IndicateAndControl},{view.params.udtElements.ProcessLow},300)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.points": {
+            "binding": {
+              "config": {
+                "aggregate": "MinMax",
+                "avoidScanClassValidation": true,
+                "dateRange": {
+                  "mostRecent": "1",
+                  "mostRecentUnits": "HOUR"
+                },
+                "enableValueCache": true,
+                "ignoreBadQuality": false,
+                "polling": {
+                  "enabled": false,
+                  "rate": "30"
+                },
+                "preventInterpolation": false,
+                "returnFormat": "Wide",
+                "returnSize": {
+                  "numRows": "100",
+                  "type": "FIXED"
+                },
+                "tags": "{this.custom.key}",
+                "valueFormat": "DATASET"
+              },
+              "type": "tag-history"
+            }
+          },
+          "props.range.high": {
+            "binding": {
+              "config": {
+                "path": "this.props.desired.high"
+              },
+              "transforms": [
+                {
+                  "expression": "{value}+50",
+                  "type": "expression"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.range.low": {
+            "binding": {
+              "config": {
+                "path": "this.props.desired.low"
+              },
+              "transforms": [
+                {
+                  "expression": "{value}-50",
+                  "type": "expression"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "desired": {},
+          "range": {}
+        },
+        "type": "ia.display.sparkline"
+      },
+      {
+        "meta": {
+          "name": "Label_CT"
+        },
+        "position": {
+          "height": 30,
+          "width": 60,
+          "x": 70,
+          "y": 170
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{view.params.udtElements.HasCT}\u0026\u0026{view.params.udtElements.IndicateAndControl}"
+              },
+              "type": "expr"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.udtElements.CVCT"
+              },
+              "transforms": [
+                {
+                  "code": "\tstring \u003d str(value) + u\u0027 A\u0027\n\treturn string",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "RKC/Text"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "NumericEntry_ManSP"
+        },
+        "position": {
+          "height": 30,
+          "width": 60,
+          "x": 10,
+          "y": 140
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{view.params.udtElements.IndicateAndControl}\u0026\u0026{view.params.udtElements.InManual}"
+              },
+              "type": "expr"
+            }
+          },
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "view.params.udtElements.ManualOut"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "spinner": {
+            "enabled": false
+          },
+          "style": {
+            "classes": "RKC/Entry RKC/Text"
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "style": {
+        "classes": "RKC/Background"
+      }
+    },
+    "type": "ia.container.coord"
+  }
+}

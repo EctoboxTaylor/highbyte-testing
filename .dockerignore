@@ -1,0 +1,7 @@
+# Created by Taylor Turner
+.git
+.gitignore
+conversion-report.txt
+*.md
+!README*.md
+

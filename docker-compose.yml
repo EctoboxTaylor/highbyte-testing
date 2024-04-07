@@ -1,0 +1,125 @@
+# This is a DEV ONLY environment (Passwords are plain text, NOT held in "secrets" file)
+# Updated 20210708
+# Created by Taylor Turner
+
+# ***********************************************************************************
+#To get build custom image run command while in file location
+#docker load -i ".\HighByte-Intelligence-Hub-3.2.0 Docker (Build 2023.9.6.1007).tar"
+#docker load -i ".\HighByte-Intelligence-Hub-3.3.0 Docker (Build 2023.12.21.1209).tar"
+#docker load -i ".\HighByte-Intelligence-Hub-3.4.0_Docker_Build-2024.2.16.51.tar"
+# ***********************************************************************************
+
+version: '3.3' #Works on both Windows and Linux
+services:
+
+  highbyte:
+    #image: highbyte:3.3.0 #Current customer version
+    image: highbyte:3.4.0.51 #Offline testing version
+    #container_name: highbyte
+    #hostname: highbyte
+    ports:
+      - 45245:45245 # runtime REST API
+      #- 4840:4840 # Default OPCUA port
+      - 1885:1885 # Internal MQTT Broker
+      - 8885:8885 # REST Data Server
+    networks:
+      - highbyte
+    volumes:
+      - hb_vol:/usr/local/highbyte/config
+    restart: always
+    deploy:
+        resources:
+          limits:
+            memory: 2G
+
+
+  ignition:
+    image: inductiveautomation/ignition:latest
+    container_name: ignition8-central
+    hostname: ignition8-central
+    ports:
+      - 8089:8088
+      - 62541:62541 #Ignition OPCUA port
+      #- 4840:4840 # Default OPCUA port
+    networks:
+      - highbyte
+    stop_grace_period: 30s
+    secrets:
+      - gateway-password
+    volumes:
+      - gateway_data:/usr/local/bin/ignition/data
+      - ./themes:/usr/local/bin/ignition/data/modules/com.inductiveautomation.perspective/themes
+      - ./fonts:/usr/local/bin/ignition/data/modules/com.inductiveautomation.perspective/fonts
+      - ./projects:/usr/local/bin/ignition/data/projects
+    logging:
+      driver: "json-file"
+      options: 
+        max-size: "200k"
+        max-file: "10"
+    environment:
+      GATEWAY_ADMIN_PASSWORD_FILE: /run/secrets/gateway-password
+      ACCEPT_IGNITION_EULA: 'Y'
+      GATEWAY_SYSTEM_NAME: mes_bootcamp
+      GATEWAY_JDBC_RELINK: 'true'
+      IGNITION_EDITION: standard
+      TZ: "America/Edmonton"
+    #command: >
+    #  -r ./backups/backup.gwbk
+    restart: always
+    deploy:
+        resources:
+          limits:
+            memory: 1G 
+
+  mssql:
+    image: kcollins/mssql:latest
+    ports:
+      # Note that the 1433 port doesn't need to be published here for the gateway container to connect, 
+      # only for external connectivity to the database.
+      - 1433:1433
+    networks:
+      - highbyte
+    volumes:
+      - v-mssql:/var/opt/mssql
+      #- ./db-backups:/backups
+      #- ./db-init:/docker-entrypoint-initdb.d
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    secrets:
+      - sa-password
+      - mssql-password
+    environment:
+      # ACCEPT_EULA confirms your acceptance of the End-User Licensing Agreement.
+      ACCEPT_EULA: Y
+      # SA_PASSWORD: Ignition1!  # Stopped working with latest image
+      MSSQL_SA_PASSWORD : Ignition1!
+      MSSQL_DATABASE: ectobox
+      MSSQL_USER: ectobox
+      MSSQL_PASSWORD_FILE: /run/secrets/mssql-password
+      MSSQL_PID: Developer # Change to the edition you need, e.g. "Express", "Standard", etc.
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+
+secrets:
+  sa-password:
+    file: ./secrets/SA_PASSWORD
+  mysql-password:
+    file: ./secrets/MYSQL_PASSWORD
+  mssql-password:
+    file: ./secrets/MSSQL_PASSWORD
+  gateway-password:
+    file: ./secrets/GATEWAY_PASSWORD
+
+
+networks:
+  highbyte:
+
+volumes:
+  gateway_data:
+  v-mssql:
+  hb_vol:

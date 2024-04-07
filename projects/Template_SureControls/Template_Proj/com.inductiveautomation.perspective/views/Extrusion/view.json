@@ -1,0 +1,277 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {},
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "FlexRepeater"
+            },
+            "position": {
+              "basis": "720px"
+            },
+            "propConfig": {
+              "props.instances[0].udtElements": {
+                "binding": {
+                  "config": {
+                    "bidirectional": true,
+                    "fallbackDelay": 2.5,
+                    "mode": "direct",
+                    "tagPath": "[edge]Barrel Zone 1"
+                  },
+                  "type": "tag"
+                }
+              },
+              "props.instances[1].udtElements": {
+                "binding": {
+                  "config": {
+                    "bidirectional": true,
+                    "fallbackDelay": 2.5,
+                    "mode": "direct",
+                    "tagPath": "[edge]Barrel Zone 2"
+                  },
+                  "type": "tag"
+                }
+              },
+              "props.instances[2].udtElements": {
+                "binding": {
+                  "config": {
+                    "bidirectional": true,
+                    "fallbackDelay": 2.5,
+                    "mode": "direct",
+                    "tagPath": "[edge]Barrel Zone 3"
+                  },
+                  "type": "tag"
+                }
+              },
+              "props.instances[3].udtElements": {
+                "binding": {
+                  "config": {
+                    "bidirectional": true,
+                    "fallbackDelay": 2.5,
+                    "mode": "direct",
+                    "tagPath": "[edge]Barrel Zone 4"
+                  },
+                  "type": "tag"
+                }
+              },
+              "props.instances[4].udtElements": {
+                "binding": {
+                  "config": {
+                    "bidirectional": true,
+                    "fallbackDelay": 2.5,
+                    "mode": "direct",
+                    "tagPath": "[edge]Adapter Zone 1"
+                  },
+                  "type": "tag"
+                }
+              },
+              "props.instances[5].udtElements": {
+                "binding": {
+                  "config": {
+                    "bidirectional": true,
+                    "fallbackDelay": 2.5,
+                    "mode": "direct",
+                    "tagPath": "[edge]Adapter Zone 2"
+                  },
+                  "type": "tag"
+                }
+              },
+              "props.instances[6].udtElements": {
+                "binding": {
+                  "config": {
+                    "bidirectional": true,
+                    "fallbackDelay": 2.5,
+                    "mode": "direct",
+                    "tagPath": "[edge]Die Zone 1"
+                  },
+                  "type": "tag"
+                }
+              },
+              "props.instances[7].udtElements": {
+                "binding": {
+                  "config": {
+                    "bidirectional": true,
+                    "fallbackDelay": 2.5,
+                    "mode": "direct",
+                    "tagPath": "[edge]Die Zone 2"
+                  },
+                  "type": "tag"
+                }
+              },
+              "props.instances[8].udtElements": {
+                "binding": {
+                  "config": {
+                    "bidirectional": true,
+                    "fallbackDelay": 2.5,
+                    "mode": "direct",
+                    "tagPath": "[edge]Die Zone 3"
+                  },
+                  "type": "tag"
+                }
+              },
+              "props.instances[9].udtElements": {
+                "binding": {
+                  "config": {
+                    "fallbackDelay": 2.5,
+                    "mode": "direct",
+                    "tagPath": "[edge]Melt Temp"
+                  },
+                  "type": "tag"
+                }
+              }
+            },
+            "props": {
+              "alignContent": "flex-start",
+              "alignItems": "baseline",
+              "instances": [
+                {
+                  "instancePosition": {},
+                  "instanceStyle": {
+                    "classes": ""
+                  }
+                },
+                {
+                  "instancePosition": {},
+                  "instanceStyle": {
+                    "classes": ""
+                  }
+                },
+                {
+                  "instancePosition": {},
+                  "instanceStyle": {
+                    "classes": ""
+                  }
+                },
+                {
+                  "instancePosition": {},
+                  "instanceStyle": {
+                    "classes": ""
+                  }
+                },
+                {
+                  "instancePosition": {},
+                  "instanceStyle": {
+                    "classes": ""
+                  }
+                },
+                {
+                  "instancePosition": {},
+                  "instanceStyle": {
+                    "classes": ""
+                  }
+                },
+                {
+                  "instancePosition": {},
+                  "instanceStyle": {
+                    "classes": ""
+                  }
+                },
+                {
+                  "instancePosition": {},
+                  "instanceStyle": {
+                    "classes": ""
+                  }
+                },
+                {
+                  "instancePosition": {},
+                  "instanceStyle": {
+                    "classes": ""
+                  }
+                },
+                {
+                  "instancePosition": {},
+                  "instanceStyle": {
+                    "classes": ""
+                  }
+                }
+              ],
+              "path": "RKC TIO",
+              "wrap": "wrap"
+            },
+            "type": "ia.display.flex-repeater"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "EmbeddedView_Temps"
+                },
+                "position": {
+                  "basis": "300px",
+                  "grow": 1
+                },
+                "props": {
+                  "path": "Sections/TempControl"
+                },
+                "type": "ia.display.view"
+              },
+              {
+                "meta": {
+                  "name": "EmbeddedView_Cooling"
+                },
+                "position": {
+                  "basis": "200px"
+                },
+                "props": {
+                  "path": "Sections/CoolingPump"
+                },
+                "type": "ia.display.view"
+              },
+              {
+                "meta": {
+                  "name": "EmbeddedView_Exhaust"
+                },
+                "position": {
+                  "basis": "200px"
+                },
+                "props": {
+                  "path": "Sections/ExhaustBlower"
+                },
+                "type": "ia.display.view"
+              }
+            ],
+            "meta": {
+              "name": "FlexContainer"
+            },
+            "position": {
+              "basis": "220px",
+              "grow": 1
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "FlexContainer"
+        },
+        "position": {
+          "basis": "770px"
+        },
+        "props": {
+          "direction": "column"
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "meta": {
+          "name": "EmbeddedView_0"
+        },
+        "position": {
+          "basis": "150px",
+          "grow": 1
+        },
+        "props": {
+          "path": "Sections/Extruder"
+        },
+        "type": "ia.display.view"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.flex"
+  }
+}

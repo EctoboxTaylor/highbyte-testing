@@ -1,0 +1,112 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 610,
+      "width": 336
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "TagBrowseTree"
+        },
+        "position": {
+          "basis": "559px"
+        },
+        "props": {
+          "root": {
+            "path": "[default]"
+          },
+          "selection": {
+            "values": [
+              "[default]L21_FILLR_POS1_PINCH_RETRACT"
+            ]
+          }
+        },
+        "type": "ia.display.tag-browse-tree"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "NumericEntryField"
+            },
+            "position": {
+              "grow": 1
+            },
+            "propConfig": {
+              "position.display": {
+                "binding": {
+                  "config": {
+                    "expression": "if(tag({.../TagBrowseTree.props.selection.values[0]})\u003dfalse||tag({.../TagBrowseTree.props.selection.values[0]})\u003dtrue,\r\n\tfalse,\r\n\ttrue)"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.value": {
+                "binding": {
+                  "config": {
+                    "bidirectional": true,
+                    "fallbackDelay": 2.5,
+                    "mode": "expression",
+                    "tagPath": "{.../TagBrowseTree.props.selection.values[0]}"
+                  },
+                  "type": "tag"
+                }
+              }
+            },
+            "type": "ia.input.numeric-entry-field"
+          },
+          {
+            "meta": {
+              "name": "ToggleSwitch"
+            },
+            "position": {
+              "basis": "96px"
+            },
+            "propConfig": {
+              "position.display": {
+                "binding": {
+                  "config": {
+                    "expression": "if(tag({.../TagBrowseTree.props.selection.values[0]})\u003dfalse||tag({.../TagBrowseTree.props.selection.values[0]})\u003dtrue,\r\n\ttrue,\r\n\tfalse)"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.selected": {
+                "binding": {
+                  "config": {
+                    "bidirectional": true,
+                    "fallbackDelay": 2.5,
+                    "mode": "expression",
+                    "tagPath": "{.../TagBrowseTree.props.selection.values[0]}"
+                  },
+                  "type": "tag"
+                }
+              }
+            },
+            "type": "ia.input.toggle-switch"
+          }
+        ],
+        "meta": {
+          "name": "FlexContainer"
+        },
+        "position": {
+          "basis": "50px",
+          "shrink": 0
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}
