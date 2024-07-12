@@ -1,0 +1,235 @@
+{
+    "mqtt": {
+        "broker_address": "emqx",
+        "broker_port": 1883,
+        "username": "admin",
+        "password": "CMUpassword1",
+        "GroupId" : "CMU Devices",
+        "NodeName" : "ROS1 Node",
+        "DeviceName" : "ROS1Bridge",
+        "publishPeriod" : 5000,
+        "publishSleep50Hz" : 0.02,
+        "attributes": {
+            "description": "Simple EoN Device node",
+            "type": "Simulated device",
+            "version": "0.01"
+        },
+        "commands": {
+            "ping": false,
+            "Node Control/Rebirth": false,
+            "Node Control/Next Server": false,
+            "Node Control/Reboot": false
+        },
+        "robot_names": [
+            "yk_architecht", 
+            "yk_builder", 
+            "yk_creator", 
+            "yk_destroyer"
+        ],
+        "telemetry_template": {
+            "fts.seq": 0,
+            "fts.stamp.secs": 0,
+            "fts.stamp.nsecs": 0,
+            "fts.frame.id": "0",
+            "fts.force.x": 0.0,
+            "fts.force.y": 0.0,
+            "fts.force.z": 0.0,
+            "fts.torque.x": 0.0,
+            "fts.torque.y": 0.0,
+            "fts.torque.z": 0.0,
+            "robot.seq": 0,
+            "robot.stamp.secs": 0,
+            "robot.stamp.nsecs": 0,
+            "robot.frame.id": "0",
+            "robot.status.mode": 0,
+            "robot.status.e_stopped": 0,
+            "robot.status.drives_powered": 0,
+            "robot.status.motion_possible": 0,
+            "robot.status.in_motion": 0,
+            "robot.status.in_error": 0,
+            "robot.status.error_code": 0,
+            "audio.data": 0,
+            "image.seq": 0,
+            "image.stamp.secs": 0,
+            "image.stamp.nsecs": 0,
+            "image.height": 0,
+            "image.width": 0,
+            "image.encoding": 0,
+            "image.is_bigendian": 0,
+            "image.step": 0,
+            "image.data": 0,
+            "joint.seq": 0,
+            "joint.stamp.secs": 0,
+            "joint.stamp.nsecs": 0,
+            "joint.frame.id": "0",
+            "joint.1.name": "joint_1",
+            "joint.1.position": 0.0,
+            "joint.1.velocity": 0.0,
+            "joint.2.name": "joint_2",
+            "joint.2.position": 0.0,
+            "joint.2.velocity": 0.0,
+            "joint.3.name": "joint_3",
+            "joint.3.position": 0.0,
+            "joint.3.velocity": 0.0,
+            "joint.4.name": "joint_4",
+            "joint.4.position": 0.0,
+            "joint.4.velocity": 0.0,
+            "joint.5.name": "joint_5",
+            "joint.5.position": 0.0,
+            "joint.5.velocity": 0.0,
+            "joint.6.name": "joint_6",
+            "joint.6.position": 0.0,
+            "joint.6.velocity": 0.0
+        },
+        "topics": {
+            "yk_architecht/fts":{
+                "ros_type": "geometry_msgs/WrenchStamped",
+                "function": "wrenchstamped_to_bytearray",
+                "mqtt_topic": "yk_architecht/fts"
+                },
+            "yk_architecht/joint_state": {
+                "ros_type": "sensor_msgs/JointState",
+                "function": "jointstate_to_bytearray",
+                "mqtt_topic": "yk_architecht/joint_state"
+            },
+            "yk_architecht/robot_status": {
+                "ros_type": "industrial_msgs/RobotStatus",
+                "function": "robotstatus_to_bytearray",
+                "mqtt_topic": "yk_architecht/robot_status"
+            },
+            "yk_architecht/position": {
+                "ros_type": "geometry_msgs/PoseStamped",
+                "function": "posestamped_to_bytearray",
+                "mqtt_topic": "yk_architecht/position"
+            },
+            "yk_architecht/image": {
+                "ros_type": "sensor_msgs/Image",
+                "function": "image_to_bytearray",
+                "mqtt_topic": "yk_architecht/image"
+            },
+            "yk_architecht/audio_info": {
+                "ros_type": "audio_common_msgs/AudioInfo",
+                "function": "audioinfo_to_bytearray",
+                "mqtt_topic": "yk_architecht/audio_info"
+            },
+            "yk_architecht/audio_data": {
+                "ros_type": "audio_common_msgs/AudioData",
+                "function": "audiodata_to_bytearray",
+                "mqtt_topic": "yk_architecht/audio_data"
+            },
+
+
+            "yk_builder/fts":{
+                "ros_type": "geometry_msgs/WrenchStamped",
+                "function": "wrenchstamped_to_bytearray",
+                "mqtt_topic": "yk_builder/fts"
+                },
+            "yk_builder/joint_state": {
+                "ros_type": "sensor_msgs/JointState",
+                "function": "jointstate_to_bytearray",
+                "mqtt_topic": "yk_builder/joint_state"
+            },
+            "yk_builder/robot_status": {
+                "ros_type": "industrial_msgs/RobotStatus",
+                "function": "robotstatus_to_bytearray",
+                "mqtt_topic": "yk_builder/robot_status"
+            },
+            "yk_builder/position": {
+                "ros_type": "geometry_msgs/PoseStamped",
+                "function": "posestamped_to_bytearray",
+                "mqtt_topic": "yk_builder/position"
+            },
+            "yk_builder/image": {
+                "ros_type": "sensor_msgs/Image",
+                "function": "image_to_bytearray",
+                "mqtt_topic": "yk_builder/image"
+            },
+            "yk_builder/audio_info": {
+                "ros_type": "audio_common_msgs/AudioInfo",
+                "function": "audioinfo_to_bytearray",
+                "mqtt_topic": "yk_builder/audio_info"
+            },
+            "yk_builder/audio_data": {
+                "ros_type": "audio_common_msgs/AudioData",
+                "function": "audiodata_to_bytearray",
+                "mqtt_topic": "yk_builder/audio_data"
+            },
+
+
+
+            "yk_creator/fts":{
+                "ros_type": "geometry_msgs/WrenchStamped",
+                "function": "wrenchstamped_to_bytearray",
+                "mqtt_topic": "yk_creator/fts"
+                },
+            "yk_creator/joint_state": {
+                "ros_type": "sensor_msgs/JointState",
+                "function": "jointstate_to_bytearray",
+                "mqtt_topic": "yk_creator/joint_state"
+            },
+            "yk_creator/robot_status": {
+                "ros_type": "industrial_msgs/RobotStatus",
+                "function": "robotstatus_to_bytearray",
+                "mqtt_topic": "yk_creator/robot_status"
+            },
+            "yk_creator/position": {
+                "ros_type": "geometry_msgs/PoseStamped",
+                "function": "posestamped_to_bytearray",
+                "mqtt_topic": "yk_architecht/position"
+            },
+            "yk_creator/image": {
+                "ros_type": "sensor_msgs/Image",
+                "function": "image_to_bytearray",
+                "mqtt_topic": "yk_architecht/image"
+            },
+            "yk_creator/audio_info": {
+                "ros_type": "audio_common_msgs/AudioInfo",
+                "function": "audioinfo_to_bytearray",
+                "mqtt_topic": "yk_architecht/audio_info"
+            },
+            "yk_creator/audio_data": {
+                "ros_type": "audio_common_msgs/AudioData",
+                "function": "audiodata_to_bytearray",
+                "mqtt_topic": "yk_architecht/audio_data"
+            },
+
+
+
+            "yk_destroyer/fts":{
+                "ros_type": "geometry_msgs/WrenchStamped",
+                "function": "wrenchstamped_to_bytearray",
+                "mqtt_topic": "yk_destroyer/fts"
+                },
+            "yk_destroyer/joint_states": {
+                "ros_type": "sensor_msgs/JointState",
+                "function": "jointstate_to_bytearray",
+                "mqtt_topic": "yk_destroyer/joint_states"
+            },
+            "yk_destroyer/robot_status": {
+                "ros_type": "industrial_msgs/RobotStatus",
+                "function": "robotstatus_to_bytearray",
+                "mqtt_topic": "yk_destroyer/robot_status"
+            },
+            "yk_destroyer/position": {
+                "ros_type": "geometry_msgs/PoseStamped",
+                "function": "posestamped_to_bytearray",
+                "mqtt_topic": "yk_architecht/position"
+            },
+            "yk_destroyer/image": {
+                "ros_type": "sensor_msgs/Image",
+                "function": "image_to_bytearray",
+                "mqtt_topic": "yk_architecht/image"
+            },
+            "yk_destroyer/audio_info": {
+                "ros_type": "audio_common_msgs/AudioInfo",
+                "function": "audioinfo_to_bytearray",
+                "mqtt_topic": "yk_architecht/audio_info"
+            },
+            "yk_destroyer/audio_data": {
+                "ros_type": "audio_common_msgs/AudioData",
+                "function": "audiodata_to_bytearray",
+                "mqtt_topic": "yk_architecht/audio_data"
+            }
+        }
+    }
+}
