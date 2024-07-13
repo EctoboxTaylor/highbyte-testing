@@ -15,7 +15,6 @@ services:
 
   highbyte:
     #image: highbyte:3.3.0 #Current customer version
-    #! Need to call highbyte about newest customer version
     image: highbyte:3.4.2 #Offline testing version
     #container_name: highbyte
     #hostname: highbyte
@@ -81,7 +80,7 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "<password>" # Set your desired password
+      POSTGRES_PASSWORD: "<password>" #Change this to a secure password
       POSTGRES_DB: "postgres"
     volumes:
       - timescaledb_data:/var/lib/postgresql/data
@@ -92,7 +91,7 @@ services:
             memory: 1G
 
 
-  uns_listener: # This service is just for running/testing our python selenium tests
+  uns_listener: 
     hostname: uns_listener
     build:
       context: ./uns_example
@@ -100,7 +99,7 @@ services:
     image: uns_listener:local_dev
     networks:
       - highbyte
-    volumes:  # this volumes section is commented out for easier testing
+    volumes: 
       - ./uns_example/scripts:/app/scripts
     restart: always
     deploy:
@@ -113,8 +112,6 @@ services:
     environment:
       - "EMQX_NAME=emqx"
       - "EMQX_HOST=127.0.0.1"
-      # - "EMQX_CLUSTER__DISCOVERY_STRATEGY=static"
-      # - "EMQX_CLUSTER__STATIC__SEEDS=[emqx@node1.emqx.io, emqx@node2.emqx.io]"
     volumes:
       - vol-emqx1-data:/opt/emqx/data
       - vol-emqx1-etc:/opt/emqx/etc

@@ -25,4 +25,8 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 RUN echo "ALL Done"
+
+# Run dt_update.py when the container launches
+# CMD ["python", "dt_update.py"]
+
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
